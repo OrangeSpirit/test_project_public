@@ -3,7 +3,7 @@
 #include <QMatrix4x4>
 #include <QFileDialog>
 
-ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent){
+ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent), isRecord(false) {
     setMinimumSize(500, 500);
     }
 
@@ -53,7 +53,7 @@ void ModelViewer::saveFrameAsJpeg() {
         "Сохранить кадр",
         QDir::currentPath(), // Стартовая директория
         "Images (*.jpg)"
-        );
+    );
 
     // Если пользователь выбрал файл, сохраняем
     if (!filePath.isEmpty()) {
@@ -72,7 +72,7 @@ void ModelViewer::saveFrameAsBMP() {
         "Сохранить кадр",
         QDir::currentPath(), // Стартовая директория
         "Images (*.bmp)"
-        );
+    );
 
     // Если пользователь выбрал файл, сохраняем
     if (!filePath.isEmpty()) {
@@ -82,6 +82,44 @@ void ModelViewer::saveFrameAsBMP() {
             qWarning("Не удалось сохранить изображение в файл: %s", qPrintable(filePath));
         }
     }
+}
+
+void ModelViewer::startGif() {
+    gif = new QGifImage(QSize(640, 480));
+    gif->setDefaultDelay(100);
+    isRecord = true;
+}
+
+int ModelViewer::getFrameCount() {
+    if (isRecord) {
+        return gif->frameCount();
+    } else {
+        return -1;
+    }
+}
+
+void ModelViewer::addFrameToGif() {
+    if (!isRecord) {
+        return;
+    }
+
+    QImage image;
+    image = grabFramebuffer();
+    image = image.scaled(640, 480, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    gif->addFrame(image);
+}
+
+void ModelViewer::endGif(QString filepath) {
+    if (!isRecord) {
+        return;
+    }
+
+    if (!filepath.isEmpty()) {
+        filepath += ".gif";
+        gif->save(filepath);
+    }
+
+    delete gif;
 }
 
 

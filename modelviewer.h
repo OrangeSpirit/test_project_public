@@ -5,7 +5,10 @@
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <vector>
-#include "mainwindow.h"
+
+#include "parser.h"
+#include "gif/gifimage/qgifimage.h"
+//#include "gif/gifimage/qgifimage_p.h"
 
 class ModelViewer : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
@@ -17,6 +20,10 @@ public:
     void setModelData(const std::vector<Vector3>& vertices, const std::vector<Edge>& edges);
     void saveFrameAsJpeg();
     void saveFrameAsBMP();
+    void startGif();
+    int getFrameCount();
+    void addFrameToGif();
+    void endGif(QString filepath);
 
 protected:
     void initializeGL() override;
@@ -25,7 +32,9 @@ protected:
 
 private:
     std::vector<Vector3> vertices; 
-    std::vector<Edge> edges;        
+    std::vector<Edge> edges;
+    QGifImage *gif;       
+    bool isRecord;
 };
 
 #endif // MODELVIEWER_H

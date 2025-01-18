@@ -15,6 +15,13 @@ add_executable(MyQtProject
     parser.h
     modelviewer.h
     mainwindow.h
+    gif/gifimage/qgifimage.cpp
+    gif/3rdParty/giflib/gif_err.c
+    gif/3rdParty/giflib/dgif_lib.c
+)
+
+target_include_directories(MyQtProject PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/gif/gifimage  # Укажите директорию заголовков gifimage
 )
 
 add_definitions(-DGL_SILENCE_DEPRECATION=1)

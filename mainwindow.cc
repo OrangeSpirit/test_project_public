@@ -16,11 +16,14 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
     rotateZEdit(new QLineEdit(this)),
     rotateModelButton(new QPushButton("Rotate Model", this)),
     scaleEdit(new QLineEdit(this)),
-    scaleModelButton(new QPushButton("Scale Model", this))
+    scaleModelButton(new QPushButton("Scale Model", this)),
+    timer(new QTimer(this))
 {
     setWindowTitle("3D Viewer");
     resize(900, 900);
     setupUI();
+
+    connect(timer, SIGNAL(timeout()), this, SLOT(update_gif()));
 }
 
 MainWindow::~MainWindow()
@@ -55,6 +58,12 @@ void MainWindow::createScreenBMPUI(QVBoxLayout* layout) {
     QPushButton *screenBMPButton = new QPushButton("BMP", this);
     layout->addWidget(screenBMPButton);
     connect(screenBMPButton, &QPushButton::clicked, this, &MainWindow::onScreenBMPButtonClicked);
+}
+
+void MainWindow::createScreenGifUI(QVBoxLayout* layout) {
+    QPushButton *screenGifButton = new QPushButton("Gif", this);
+    layout->addWidget(screenGifButton);
+    connect(screenGifButton, &QPushButton::clicked, this, &MainWindow::onScreenGifButtonClicked);
 }
 
 void MainWindow::createMoveUI(QVBoxLayout* layout) {
@@ -122,6 +131,7 @@ void MainWindow::setupUI() {
 
     createScreenJpgUI(layout);
     createScreenBMPUI(layout);
+    createScreenGifUI(layout);
 
     createMoveUI(layout);
     createRotateUI(layout);
@@ -193,4 +203,29 @@ void MainWindow::onScreenJpgButtonClicked()
 void MainWindow::onScreenBMPButtonClicked()
 {
     modelViewer->saveFrameAsBMP();
+}
+
+// Скрин в формате Gif (640x480, 10fps, 5s)
+void MainWindow::onScreenGifButtonClicked()
+{
+    modelViewer->startGif();
+    timer->start(100);
+}
+
+void MainWindow::update_gif() 
+{
+    if (modelViewer->getFrameCount() >= 0 && modelViewer->getFrameCount() < 50) {
+        modelViewer->addFrameToGif();
+    } else if (modelViewer->getFrameCount() >= 50) {
+        QString filePath = QFileDialog::getSaveFileName(
+            this,
+            "Сохранить кадр",
+            QDir::currentPath(), // Стартовая директория
+            "Images (*.gif)"
+        );
+        modelViewer->endGif(filePath);
+        timer->stop();
+    } else {
+        timer->stop();
+    }
 }

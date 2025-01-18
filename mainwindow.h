@@ -7,7 +7,8 @@
 #include <QLineEdit>
 #include <QSlider>
 #include <QPushButton>
-#include <QOpenGLWidget>  
+#include <QOpenGLWidget>
+#include <QTimer>
 #include "parser.h"    
 #include "modelviewer.h" 
 
@@ -30,6 +31,9 @@ private slots:
 
     void onScreenJpgButtonClicked();
     void onScreenBMPButtonClicked();
+    void onScreenGifButtonClicked();
+
+    void update_gif();
 
 private:
     QLabel *fileNameLabel;     
@@ -51,11 +55,15 @@ private:
 
     QPushButton *screenJpgButton;
     QPushButton *screenBMPButton;
+    QPushButton *screenGifButton;
+
+    QTimer *timer;
 
     void setupUI();
     void createFileSelectionUI(QVBoxLayout* layout);
     void createScreenJpgUI(QVBoxLayout* layout);
     void createScreenBMPUI(QVBoxLayout* layout);
+    void createScreenGifUI(QVBoxLayout* layout);
     void createMoveUI(QVBoxLayout* layout);
     void createRotateUI(QVBoxLayout* layout);
     void createScaleUI(QVBoxLayout* layout);
