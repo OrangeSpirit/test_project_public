@@ -1,49 +1,14 @@
 #include "modelviewer.h"
-#include <QOpenGLFunctions>
-#include <QMatrix4x4>
-#include <QFileDialog>
 
-ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent), isRecord(false) {
-    setMinimumSize(500, 500);
+ModelViewer::ModelViewer(QWidget *parent) : QOpenGLWidget(parent){
+    setMinimumSize(700, 700);
+    resize(1500, 1500);
     }
 
 void ModelViewer::setModelData(const std::vector<Vector3>& vertices, const std::vector<Edge>& edges) {
     this->vertices = vertices;
     this->edges = edges;
     update();  
-}
-
-void ModelViewer::initializeGL() {
-    initializeOpenGLFunctions();
-    glClearColor(0.0, 0.0, 0.0, 1.0);  // Черный фон
-    glEnable(GL_DEPTH_TEST);
-}
-
-void ModelViewer::resizeGL(int w, int h) {
-    glViewport(0, 0, w, h);
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    
-    float aspectRatio = (float)w / (float)h;
-    glFrustum(-aspectRatio, aspectRatio, -1.0, 1.0, 2.0, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-}
-
-
-void ModelViewer::paintGL() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    glLoadIdentity(); 
-    glTranslatef(0.0f, 0.0f, -5.0f);  // Сдвиг модели для отображения
-
-    glBegin(GL_LINES);
-    for (const auto& edge : edges) {
-        const Vector3& v1 = vertices[edge.v1];
-        const Vector3& v2 = vertices[edge.v2];
-        glVertex3f(v1.x, v1.y, v1.z);
-        glVertex3f(v2.x, v2.y, v2.z);
-    }
-    glEnd();
 }
 
 void ModelViewer::saveFrameAsJpeg() {
@@ -53,7 +18,7 @@ void ModelViewer::saveFrameAsJpeg() {
         "Сохранить кадр",
         QDir::currentPath(), // Стартовая директория
         "Images (*.jpg)"
-    );
+        );
 
     // Если пользователь выбрал файл, сохраняем
     if (!filePath.isEmpty()) {
@@ -72,7 +37,7 @@ void ModelViewer::saveFrameAsBMP() {
         "Сохранить кадр",
         QDir::currentPath(), // Стартовая директория
         "Images (*.bmp)"
-    );
+        );
 
     // Если пользователь выбрал файл, сохраняем
     if (!filePath.isEmpty()) {
@@ -121,6 +86,42 @@ void ModelViewer::endGif(QString filepath) {
 
     delete gif;
 }
+
+void ModelViewer::initializeGL() {
+    initializeOpenGLFunctions();
+    glClearColor(0.0, 0.0, 0.0, 1.0);  // Черный фон
+    glEnable(GL_DEPTH_TEST);
+}
+
+void ModelViewer::resizeGL(int w, int h) {
+    glViewport(0, 0, w, h);
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    
+    float aspectRatio = (float)w / (float)h;
+    glFrustum(-aspectRatio, aspectRatio, -1.0, 1.0, 2.0, 100.0);
+    glMatrixMode(GL_MODELVIEW);
+}
+
+
+void ModelViewer::paintGL() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glLoadIdentity(); 
+    glTranslatef(0.0f, 0.0f, -15.0f); 
+
+    glBegin(GL_LINES);
+    for (size_t i = 0; i < edges.size(); ++i) {
+        const Vector3& v1 = vertices[edges[i].v1];
+        const Vector3& v2 = vertices[edges[i].v2];
+        glVertex3f(v1.x, v1.y, v1.z);
+        glVertex3f(v2.x, v2.y, v2.z);
+}
+    glEnd();
+
+}
+
+
 
 
 

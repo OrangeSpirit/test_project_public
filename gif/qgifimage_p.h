@@ -22,50 +22,53 @@
 ** WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 **
 ****************************************************************************/
+#ifndef QGIFIMAGE_P_H
+#define QGIFIMAGE_P_H
 
-/*!
-    \title Qt GifImage
-    \page index.html
-    \brief Qt GifImage provides functionality for handling .gif files.
+#include "qgifimage.h"
+#include "gif_lib.h"
 
-    The \l{Qt GifImage C++ Classes}{Qt GifImage Module} provides a set of classes to read and write .gif files.
-    The library can be used to
+#include <QVector>
+#include <QColor>
 
-    \list
-       \li Generate a new .gif file from a list of QImage files.
-       \li Extract frames to a list of QImage files.
-    \endlist
+class QGifFrameInfoData
+{
+public:
+    QGifFrameInfoData()
+        :delayTime(-1), interlace(false)
+    {
 
-    \image demo1.gif
+    }
+    QImage image;
+    QPoint offset; //offset info of QImage will lost when convert from One format to another.
+    int delayTime;
+    bool interlace;
+    QColor transparentColor;
+};
 
-    \table
-      \row
-        \li Source code: \li \l{https://github.com/dbzhang800/QtGifImage}
-      \row
-        \li Issures: \li \l{https://github.com/dbzhang800/QtGifImage/issues}
-      \row
-        \li License: \li MIT
-    \endtable
+class QGifImagePrivate
+{
+    Q_DECLARE_PUBLIC(QGifImage)
+public:
+    QGifImagePrivate(QGifImage *p);
+    ~QGifImagePrivate();
+    bool load(QIODevice *device);
+    bool save(QIODevice *device) const;
+    QVector<QRgb> colorTableFromColorMapObject(ColorMapObject *object, int transColorIndex=-1) const;
+    ColorMapObject * colorTableToColorMapObject(QVector<QRgb> colorTable) const;
+    QSize getCanvasSize() const;
+    int getFrameTransparentColorIndex(const QGifFrameInfoData &info) const;
 
-    \section1 Getting Started
+    QSize canvasSize;
+    int loopCount;
+    int defaultDelayTime;
+    QColor defaultTransparentColor;
 
-    To include the definitions of the module's classes, using the following directive:
+    QVector<QRgb> globalColorTable;
+    QColor bgColor;
+    QList<QGifFrameInfoData> frameInfos;
 
-    \code
-    #include <QtGifImage>
-    \endcode
+    QGifImage *q_ptr;
+};
 
-    To link against the module, add this line to your qmake .pro file:
-
-    \code
-    QT += gifimage
-    \endcode
-
-    More information can be found in \l{Qt GifImage Build} page.
-
-    \section1 Related information
-    \list
-        \li \l{Qt GifImage C++ Classes}
-        \li \l{Qt GifImage Examples}
-    \endlist
-*/
+#endif // QGIFIMAGE_P_H

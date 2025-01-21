@@ -7,28 +7,26 @@
 #include "parser.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent),
-    fileNameEdit(new QLineEdit(this)),
+    fileNameEdit(new QLineEdit(nullptr)),
     moveSliderX(new QSlider(Qt::Horizontal, this)),
     moveSliderY(new QSlider(Qt::Horizontal, this)),
     modelViewer(new ModelViewer(this)),
     rotateXEdit(new QLineEdit(this)),
     rotateYEdit(new QLineEdit(this)),
     rotateZEdit(new QLineEdit(this)),
-    rotateModelButton(new QPushButton("Rotate Model", this)),
+    rotateModelButton(new QPushButton("Rotate Model", nullptr)),
     scaleEdit(new QLineEdit(this)),
-    scaleModelButton(new QPushButton("Scale Model", this)),
+    scaleModelButton(new QPushButton("Scale Model", nullptr)),
     timer(new QTimer(this))
 {
     setWindowTitle("3D Viewer");
-    resize(900, 900);
+    resize(1600, 1600); 
     setupUI();
 
     connect(timer, SIGNAL(timeout()), this, SLOT(update_gif()));
 }
 
-MainWindow::~MainWindow()
-{
-}
+MainWindow::~MainWindow() {}
 
 void MainWindow::createFileSelectionUI(QVBoxLayout* layout) {
     fileNameEdit = new QLineEdit(this);
@@ -42,10 +40,62 @@ void MainWindow::createFileSelectionUI(QVBoxLayout* layout) {
     connect(selectFileButton, &QPushButton::clicked, this, &MainWindow::onSelectFileClicked);
 
     layout->addWidget(fileNameEdit);
+    layout->addSpacing(10); 
+
     layout->addWidget(selectFileButton);
     layout->addWidget(fileNameLabel);       
     layout->addWidget(vertexCountLabel);    
     layout->addWidget(edgeCountLabel); 
+}
+
+
+void MainWindow::createMoveUI(QVBoxLayout* layout) {
+    QLabel *moveLabelX = new QLabel("Move X:", this);
+    moveSliderX->setRange(-2, 2);
+    connect(moveSliderX, &QSlider::valueChanged, this, &MainWindow::onMoveModelButtonClicked);
+
+    QLabel *moveLabelY = new QLabel("Move Y:", this);
+    moveSliderY->setRange(-2, 2);
+    connect(moveSliderY, &QSlider::valueChanged, this, &MainWindow::onMoveModelButtonClicked);
+
+    layout->addWidget(moveLabelX);
+    layout->addWidget(moveSliderX);
+    layout->addWidget(moveLabelY);
+    layout->addWidget(moveSliderY);
+}
+
+void MainWindow::createRotateUI(QVBoxLayout* layout) {
+    QLabel *rotateLabelX = new QLabel("Rotate X (degrees):", this);
+    rotateXEdit->setPlaceholderText("0");
+
+    QLabel *rotateLabelY = new QLabel("Rotate Y (degrees):", this);
+    rotateYEdit->setPlaceholderText("0");
+
+    QLabel *rotateLabelZ = new QLabel("Rotate Z (degrees):", this);
+    rotateZEdit->setPlaceholderText("0");
+
+    rotateModelButton = new QPushButton("Rotate Model", this);
+    connect(rotateModelButton, &QPushButton::clicked, this, &MainWindow::onRotateModelButtonClicked);
+
+    layout->addWidget(rotateLabelX);
+    layout->addWidget(rotateXEdit);
+    layout->addWidget(rotateLabelY);
+    layout->addWidget(rotateYEdit);
+    layout->addWidget(rotateLabelZ);
+    layout->addWidget(rotateZEdit);
+    layout->addWidget(rotateModelButton);
+}
+
+void MainWindow::createScaleUI(QVBoxLayout* layout) {
+    QLabel *scaleLabel = new QLabel("Scale (e.g., 1.0):", this);
+    scaleEdit->setPlaceholderText("1.0");
+
+    scaleModelButton = new QPushButton("Scale Model", this);
+    connect(scaleModelButton, &QPushButton::clicked, this, &MainWindow::onScaleModelButtonClicked);
+
+    layout->addWidget(scaleLabel);
+    layout->addWidget(scaleEdit);
+    layout->addWidget(scaleModelButton);
 }
 
 void MainWindow::createScreenJpgUI(QVBoxLayout* layout) {
@@ -66,79 +116,65 @@ void MainWindow::createScreenGifUI(QVBoxLayout* layout) {
     connect(screenGifButton, &QPushButton::clicked, this, &MainWindow::onScreenGifButtonClicked);
 }
 
-void MainWindow::createMoveUI(QVBoxLayout* layout) {
-    QLabel *moveLabelX = new QLabel("Move X:", this);
-    moveSliderX = new QSlider(Qt::Horizontal, this);
-    moveSliderX->setRange(-100, 100);
-    connect(moveSliderX, &QSlider::valueChanged, this, &MainWindow::onMoveModelButtonClicked);
-
-    QLabel *moveLabelY = new QLabel("Move Y:", this);
-    moveSliderY = new QSlider(Qt::Horizontal, this);
-    moveSliderY->setRange(-100, 100);
-    connect(moveSliderY, &QSlider::valueChanged, this, &MainWindow::onMoveModelButtonClicked);
-
-    layout->addWidget(moveLabelX);
-    layout->addWidget(moveSliderX);
-    layout->addWidget(moveLabelY);
-    layout->addWidget(moveSliderY);
-}
-
-void MainWindow::createRotateUI(QVBoxLayout* layout) {
-    QLabel *rotateLabelX = new QLabel("Rotate X (degrees):", this);
-    rotateXEdit = new QLineEdit(this);
-    rotateXEdit->setPlaceholderText("0");
-
-    QLabel *rotateLabelY = new QLabel("Rotate Y (degrees):", this);
-    rotateYEdit = new QLineEdit(this);
-    rotateYEdit->setPlaceholderText("0");
-
-    QLabel *rotateLabelZ = new QLabel("Rotate Z (degrees):", this);
-    rotateZEdit = new QLineEdit(this);
-    rotateZEdit->setPlaceholderText("0");
-
-    rotateModelButton = new QPushButton("Rotate Model", this);
-    connect(rotateModelButton, &QPushButton::clicked, this, &MainWindow::onRotateModelButtonClicked);
-
-    layout->addWidget(rotateLabelX);
-    layout->addWidget(rotateXEdit);
-    layout->addWidget(rotateLabelY);
-    layout->addWidget(rotateYEdit);
-    layout->addWidget(rotateLabelZ);
-    layout->addWidget(rotateZEdit);
-    layout->addWidget(rotateModelButton);
-}
-
-void MainWindow::createScaleUI(QVBoxLayout* layout) {
-    QLabel *scaleLabel = new QLabel("Scale (e.g., 1.0):", this);
-    scaleEdit = new QLineEdit(this);
-    scaleEdit->setPlaceholderText("1.0");
-
-    scaleModelButton = new QPushButton("Scale Model", this);
-    connect(scaleModelButton, &QPushButton::clicked, this, &MainWindow::onScaleModelButtonClicked);
-
-    layout->addWidget(scaleLabel);
-    layout->addWidget(scaleEdit);
-    layout->addWidget(scaleModelButton);
-}
-
 void MainWindow::setupUI() {
     QWidget *centralWidget = new QWidget(this);
-    QVBoxLayout *layout = new QVBoxLayout;
+    QGridLayout *layout = new QGridLayout(centralWidget);
 
-    createFileSelectionUI(layout);
-    modelViewer->setMinimumSize(300, 300);
-    layout->addWidget(modelViewer);
+    QVBoxLayout *fileLayout = new QVBoxLayout();
+    createFileSelectionUI(fileLayout);
+    layout->addLayout(fileLayout, 0, 0, 2, 1);
 
-    createScreenJpgUI(layout);
-    createScreenBMPUI(layout);
-    createScreenGifUI(layout);
+    modelViewer->setMinimumSize(800, 600);
+    layout->addWidget(modelViewer, 0, 1, 6, 1);  
 
-    createMoveUI(layout);
-    createRotateUI(layout);
-    createScaleUI(layout);
+    QVBoxLayout *moveLayout = new QVBoxLayout();
+    createMoveUI(moveLayout);
+    layout->addLayout(moveLayout, 2, 0, 1, 1); 
+
+    QVBoxLayout *rotateLayout = new QVBoxLayout();
+    createRotateUI(rotateLayout);
+    layout->addLayout(rotateLayout, 3, 0, 1, 1); 
+
+    QVBoxLayout *scaleLayout = new QVBoxLayout();
+    createScaleUI(scaleLayout);
+    layout->addLayout(scaleLayout, 4, 0, 1, 1);
+
+    QVBoxLayout *screenJpgLayout = new QVBoxLayout(); // Jpeg
+    createScreenJpgUI(screenJpgLayout);
+    layout->addLayout(screenJpgLayout, 5, 0, 1, 1);
+
+    QVBoxLayout *screenBMPLayout = new QVBoxLayout(); // BMP
+    createScreenBMPUI(screenBMPLayout);
+    layout->addLayout(screenBMPLayout, 6, 0, 1, 1);
+
+    QVBoxLayout *screenGifLayout = new QVBoxLayout(); // Gif
+    createScreenGifUI(screenGifLayout);
+    layout->addLayout(screenGifLayout, 7, 0, 1, 1);
+    
+    layout->setRowStretch(1, 1);  
+    layout->setRowStretch(2, 1);
+    layout->setRowStretch(3, 1);
+    layout->setRowStretch(5, 1);
+
+    
+    adjustUIElements();
 
     centralWidget->setLayout(layout);
     setCentralWidget(centralWidget);
+}
+
+
+void MainWindow::adjustUIElements() {
+    rotateModelButton->setFixedSize(100, 30);
+    scaleModelButton->setFixedSize(100, 30);
+    moveSliderX->setFixedWidth(150);
+    moveSliderY->setFixedWidth(150);
+
+    fileNameEdit->setFixedWidth(200);
+    rotateXEdit->setFixedWidth(60);
+    rotateYEdit->setFixedWidth(60);
+    rotateZEdit->setFixedWidth(60);
+    scaleEdit->setFixedWidth(60);
 }
 
 // Обработка выбора файла
@@ -169,7 +205,9 @@ void MainWindow::onSelectFileClicked()
 void MainWindow::onMoveModelButtonClicked()
 {
     int xValue = moveSliderX->value();
+    modelViewer->move_x(xValue);
     int yValue = moveSliderY->value();
+     modelViewer->move_y(yValue);
     qDebug() << "Move Model: X = " << xValue << ", Y = " << yValue;
     modelViewer->update();
 }
@@ -178,8 +216,15 @@ void MainWindow::onMoveModelButtonClicked()
 void MainWindow::onRotateModelButtonClicked()
 {
     float rotateX = rotateXEdit->text().toFloat();
+    
+
+    modelViewer->rotate_ox (rotateX);
+
     float rotateY = rotateYEdit->text().toFloat();
+    
+    modelViewer->rotate_oy (rotateY);
     float rotateZ = rotateZEdit->text().toFloat();
+        modelViewer->rotate_oz (rotateZ);
 
     qDebug() << "Rotate Model: X = " << rotateX << ", Y = " << rotateY << ", Z = " << rotateZ;
     modelViewer->update();
@@ -189,6 +234,7 @@ void MainWindow::onRotateModelButtonClicked()
 void MainWindow::onScaleModelButtonClicked()
 {
     float scale = scaleEdit->text().toFloat();
+    modelViewer->scaling (scale);
     qDebug() << "Scale Model: Factor = " << scale;
     modelViewer->update();
 }
@@ -217,6 +263,7 @@ void MainWindow::update_gif()
     if (modelViewer->getFrameCount() >= 0 && modelViewer->getFrameCount() < 50) {
         modelViewer->addFrameToGif();
     } else if (modelViewer->getFrameCount() >= 50) {
+        timer->stop();
         QString filePath = QFileDialog::getSaveFileName(
             this,
             "Сохранить кадр",
@@ -224,7 +271,6 @@ void MainWindow::update_gif()
             "Images (*.gif)"
         );
         modelViewer->endGif(filePath);
-        timer->stop();
     } else {
         timer->stop();
     }

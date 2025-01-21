@@ -9,8 +9,8 @@
 #include <QPushButton>
 #include <QOpenGLWidget>
 #include <QTimer>
-#include "parser.h"    
-#include "modelviewer.h" 
+#include "parser.h"
+#include "modelviewer.h"
 
 class ModelViewer; 
 
@@ -61,12 +61,14 @@ private:
 
     void setupUI();
     void createFileSelectionUI(QVBoxLayout* layout);
-    void createScreenJpgUI(QVBoxLayout* layout);
-    void createScreenBMPUI(QVBoxLayout* layout);
-    void createScreenGifUI(QVBoxLayout* layout);
     void createMoveUI(QVBoxLayout* layout);
     void createRotateUI(QVBoxLayout* layout);
     void createScaleUI(QVBoxLayout* layout);
+    void createScreenJpgUI(QVBoxLayout* layout);
+    void createScreenBMPUI(QVBoxLayout* layout);
+    void createScreenGifUI(QVBoxLayout* layout);
+
+    void adjustUIElements();
 };
 
 #endif // MAINWINDOW_H
